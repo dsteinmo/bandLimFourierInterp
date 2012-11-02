@@ -1,0 +1,58 @@
+%unit test for bandLimtFourierInterp2D
+clear;
+close all;
+
+%make sure that the functions we're calling are visible to matlab
+addpath ../ 
+
+%set error tolerance
+errtol = 1e-3;
+
+%build structured 64x64 grid
+Nx=64;
+Ny=64;
+dx = 2*pi/Nx;
+dy = 2*pi/Ny;
+[x,y]= meshgrid((1:Nx)*dx,(1:Ny)*dy);
+f=sin(x).*sin(y); %function to sample
+
+%construct random set of points to interpolate at.
+xout= randn(100,1)*pi + pi;
+yout= randn(100,1)*pi + pi;
+xoutnew = xout(xout >x(1,1) & xout < x(end,end) & yout >y(1,1) & yout < y(end,end));
+yout = yout(xout >x(1,1) & xout < x(end,end) & yout >y(1,1) & yout < y(end,end));
+xout =xoutnew; clear xoutnew;
+
+fout = bandLimFourierInterp2D(x,y,f,xout,yout);
+
+%check error - should get better if we refine the grid
+err = norm(sin(xout).*sin(yout)-fout,2)/length(xout);
+if err < errtol
+    disp(['Test of bandLimFourierInterp2D.m PASSED with err=' num2str(err)]);
+else
+    disp(['Test of bandLimFourierInterp2D.m FAILED with err=' num2str(err)]);
+end
+
+%%plot results, if you want
+% figure(1); clf;
+% surf(x,y,f); shading interp; colorbar; drawnow;
+% hold on;
+% plot3(xout,yout,fout,'*r')
+
+%test 2: test tensor-product output functionality.
+[xxout,yyout] = meshgrid(sort(xout,'ascend'),sort(yout,'ascend'));
+
+fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout);
+
+%did we reshape properly?
+if all(size(fout_tensor) == size(xxout))
+    disp('Test of bandLimFourierInterp2D.m (tensor product output) PASSED');
+else
+    disp('Test of bandLimFourierInterp2D.m (tensor product output) FAILED');
+end
+
+%%plot results, if you want
+% figure(2); clf;
+% surf(xxout,yyout,fout_tensor); shading interp; colorbar; drawnow;
+% hold on;
+% plot3(xout,yout,fout,'*r')
