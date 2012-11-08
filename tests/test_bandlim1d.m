@@ -6,8 +6,11 @@ close all;
 %make sure that the functions we're calling are visible to matlab
 addpath ../
 
+%do you want to plot results?
+GRAPHICAL_OUTPUT = true;
+
 %set error tolerance
-errtol = 1e-3;
+errtol = 1e-4;
 
 %build grid periodic
 xmax = 10; 
@@ -35,10 +38,12 @@ else
 end
 
 %%plot results if you want
-%figure(1); clf;
-%plot(x,v,'.-',xout,p,'.r'); 
-%legend('original signal','interpolated values');
-%axis([xmin xmax -.1 1.1]); 
+if GRAPHICAL_OUTPUT == true
+    figure(1); clf;
+    plot(x,v,'.-',xout,p,'.r'); 
+    legend('original signal','interpolated values');
+    axis([xmin xmax -.1 1.1]); 
+end
 
 %test #2
 %set signal to interpolate, and do interpolation to below points
@@ -55,9 +60,11 @@ else
 end
 
 %%plot results if you want
-%figure(2); clf;
-%plot(x,v,'.-',xout,p,'.r'); 
-%legend('original signal','interpolated values','location','southwest');
+if GRAPHICAL_OUTPUT == true
+    figure(2); clf;
+    plot(x,v,'.-',xout,p,'.r'); 
+    legend('original signal','interpolated values','location','southwest');
+end
 
 %test #3
 %set signal to interpolate, and do interpolation to below points
@@ -74,9 +81,11 @@ else
 end
 
 %%plot results if you want
-% figure(3); clf;
-% plot(x,v,'.-',xout,p,'.r'); 
-% legend('original signal','interpolated values','location','southwest');
+if GRAPHICAL_OUTPUT == true
+    figure(3); clf;
+    plot(x,v,'.-',xout,p,'.r'); 
+    legend('original signal','interpolated values','location','southwest');
+end
 
 %%test 4 - an aperiodic signal -> this is expected to fail due to gibbs
 %%oscillations, since input data must be periodic

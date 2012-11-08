@@ -5,14 +5,17 @@
 %   Uses band-limited interpolation formula in tensor product form to avoid 
 %   'for' loops. cf. Trefethen, "Spectral Methods in MATLAB", p3.m.
 %
+%   Should run in both MATLAB and GNU Octave, please report any bugs to 
+%   the author: dsteinmo "at" uwaterloo.ca
+%
 %   Author: Derek Steinmoeller, University of Waterloo. Copyright (C) 2012.
-%   Thanks: Mike Dunphy (improvements to speed/memory efficiency)
-%           Chris Subich (help with correcting periodicity bugs)
+%   Contact: dsteinmo@uwaterloo.ca
+%   Improvements by: Mike Dunphy (improved speed/memory efficiency)
+%                    Chris Subich (help with correcting periodicity bugs)
 %
 %   This program is free software; you can redistribute it and/or
-%   modify it under the terms of the GNU General Public License
-%   as published by the Free Software Foundation; either version 2
-%   of the License, or (at your option) any later version.
+%   modify it under the terms of the GNU General Public License version 3
+%   as published by the Free Software Foundation.
 % 
 %   This program is distributed in the hope that it will be useful,
 %   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -35,32 +38,28 @@ function fout =  bandLimFourierInterp1D(x,f,xout)
     Nx = length(x);
     L = dx*length(x);
     
-    %build tensor-product grid & data
-    Nout=length(xout);
-    [xx,xxout] = meshgrid(x,xout);
-    ff = repmat(f,1,Nout).';
-    
-    %depdening on the parity of the original signals number of nodes
+    %depending on the parity of the original signal's number of nodes
     %choose the appropriate periodic sinc.
     if mod(Nx,2)==1
-        psinc = @(x) bsinc(pi*x,dx,L)*(dx/L);
+        psinc = @(x) bsinc(pi*x,dx,L);
     else
-        psinc = @(x) bsinc(pi*x,dx,L).*cos(pi*x/L).*(dx/L);
+        psinc = @(x) bsinc(pi*x,dx,L).*cos(pi*x/L);
     end
     
-    %compute kernel function and calculate the contribution
+    %evaluate kernel function and calculate the contribution
     %due to each grid point
-    kernel = psinc(xxout-xx);
-    ffout = ff.*kernel;
+    shiftx = bsxfun(@minus,xout,x.');
+    kernel = psinc(shiftx); %2D array.
+    ffout = bsxfun(@times,f.',kernel);
     
     %contract (sum over) grid points to get interpolated data at xout.
     fout = sum(ffout,2); %sum over columns
 end
-% Helper function: Baseline sinc -- returns sin(x/dx)/sin(x/L), since
-% the special case x == 0 gives a naive implementation NaN issues
+% Helper function: Baseline sinc -- returns sin(x/dx)/sin(x/L)*(dx/L), since
+% the special case x == 0 gives a naive implementation NaN issue
 function z = bsinc(x,dx,L)
     z = zeros(size(x));
-    z(x==0) = L/dx;
-    z(x~=0) = sin(x(x~=0)/dx)./sin(x(x~=0)/L);
+    z(x==0) = 1;
+    z(x~=0) = sin(x(x~=0)/dx)./sin(x(x~=0)/L)*(dx/L);
     return
 end
