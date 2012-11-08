@@ -1,14 +1,14 @@
 %BANDLIMFOURIERINTERP2D 2D Band-Limited Fourier Interpolation
-%   fout = bandLimFourierInterp2D(x,f,xout) takes periodic signal f sampled
-%   at equispaced grid (x,y) and interpolates to arbitrary set of points
-%   (xout,yout). [x,y] should be a tensor-product grid generated with
+%   fout = bandLimFourierInterp2D(x,y,f,xout,yout) takes periodic signal 
+%   f sampled at equispaced grid (x,y) and interpolates to arbitrary set of
+%   points (xout,yout). [x,y] should be a tensor-product grid generated with
 %   meshgrid. [xout,yout] can either be a tensor-product grid or a list
 %   of points where xout and yout are each 1D arrays.
 %
-%   fout = bandLimFourierInterp2D(x,f,xout,maxMem) is the same as above but
-%   with optional argument maxMem that allows the specification of maximum
-%   amount of memory (in bytes) allowed to be allocated by temporary 3D
-%   tensor-product arrays. Default is 200 MB.
+%   fout = bandLimFourierInterp2D(x,y,f,xout,yout,maxMem) is the same as
+%   above but with optional argument maxMem that allows the specification of 
+%   maximum amount of memory (in bytes) allowed to be allocated by temporary 
+%   3D tensor-product arrays. Default is 200 MB.
 %
 %   Uses band-limited interpolation formula in tensor product form to avoid
 %   'for' loops. cf. Trefethen, "Spectral Methods in MATLAB", p3.m.
