@@ -93,7 +93,6 @@ function fout =  bandLimFourierInterp2D(x,y,f,xout,yout,maxMem)
     %if we can fit the entire calculation in memory
     %at the same time, then proceed as normal (as in older version)
     if Nout < zlen
-        %allocate memory for 3D arrays
         fout = doSincInterpFast(f,psincX,psincY,x1d,y1d,xout,yout);
     else
         %if we can't fit it into memory, split it up into blocks of length
@@ -126,20 +125,17 @@ function fout = doSincInterpFast(f,sincX,sincY,x1d,y1d,xout,yout)
     fprintf('Working on %d points...\n',Nout);
 
     %evaluate all the shifted sinc functions using bsxfun
-    x1d=reshape(x1d,[1 Nx 1]);
-    xout=reshape(xout,[1 1 Nout]);
-    shiftX = bsxfun(@minus,xout,x1d);  % 2D array
+    x1d=reshape(x1d,[1 Nx 1]);      % transpose
+    xout=reshape(xout,[1 1 Nout]);  % appropriately.
+    shiftX = bsxfun(@minus,xout,x1d);  % result is 2D array
 
-    y1d=reshape(y1d,[Ny 1 1]);
-    yout=reshape(yout,[1 1 Nout]);    
-    shiftY = bsxfun(@minus,yout,y1d);  % 2D array
+    y1d=reshape(y1d,[Ny 1 1]);      % transpose
+    yout=reshape(yout,[1 1 Nout]);  % appropriately.
+    shiftY = bsxfun(@minus,yout,y1d);  % result is 2D array
     
     %evaluate kernel function and calculate the contribution
     %due to each grid point
     kernel = bsxfun(@times,sincX(shiftX),sincY(shiftY)); %3D array
-
-    %ss=bsxfun(@times, sin(QX)./QX, sin(QY)./QY);    % 3D array
-    %fout=bsxfun(@times, f, ss);                     % 3D array
     fout = bsxfun(@times,f,kernel); %3D array
 
     %double-contract (sum over) them all to 
