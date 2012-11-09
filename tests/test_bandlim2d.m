@@ -12,8 +12,8 @@ GRAPHICAL_OUTPUT = true;
 errtol = 1e-3;
 
 %set optional max memory argument
-%maxMem=[];
-maxMem=4e8;
+maxMem=[];
+%maxMem=4e8;
 
 %build structured 64x64 grid
 Nx=64;

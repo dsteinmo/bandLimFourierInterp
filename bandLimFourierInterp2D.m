@@ -35,10 +35,18 @@
 %   02110-1301, USA
 function fout =  bandLimFourierInterp2D(x,y,f,xout,yout,maxMem)
 
+    %deal with optional input argument
+    MAXMEMDEFAULT = 209715200; %default = 200 MB
+    
     if ~exist('maxMem','var')
-        maxMem = 209715200; %default = 200 MB
+        maxMem = MAXMEMDEFAULT;
+    else
+        if isempty(maxMem)
+            maxMem = MAXMEMDEFAULT;
+        end
+        %else, input is probably acceptable
     end
-
+    
     %get 1D versions of x & y-grids
     x1d = x(1,:);
     y1d = y(:,1);
@@ -135,8 +143,10 @@ function fout = doSincInterpFast(f,sincX,sincY,x1d,y1d,xout,yout)
     
     %evaluate kernel function and calculate the contribution
     %due to each grid point
-    kernel = bsxfun(@times,sincX(shiftX),sincY(shiftY)); %3D array
-    fout = bsxfun(@times,f,kernel); %3D array
+    %kernel = bsxfun(@times,sincX(shiftX),sincY(shiftY)); %3D array
+    %fout = bsxfun(@times,f,kernel); %3D array
+    %...this step can be optimized by combining into one line:
+    fout = bsxfun(@times,f,bsxfun(@times,sincX(shiftX),sincY(shiftY)));
 
     %double-contract (sum over) them all to 
     %get interpolated data at (xout,yout).
