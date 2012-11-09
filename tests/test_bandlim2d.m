@@ -11,10 +11,6 @@ GRAPHICAL_OUTPUT = true;
 %set error tolerance
 errtol = 1e-3;
 
-%set optional max memory argument
-maxMem=[];
-%maxMem=4e8;
-
 %build structured 64x64 grid
 Nx=64;
 Ny=64;
@@ -30,7 +26,7 @@ xoutnew = xout(xout >x(1,1) & xout < x(end,end) & yout >y(1,1) & yout < y(end,en
 yout = yout(xout >x(1,1) & xout < x(end,end) & yout >y(1,1) & yout < y(end,end));
 xout =xoutnew; clear xoutnew;
 
-fout = bandLimFourierInterp2D(x,y,f,xout,yout,maxMem);
+fout = bandLimFourierInterp2D(x,y,f,xout,yout);
 
 %check error - should get better if we refine the grid
 err = norm(sin(xout(:)).*sin(yout(:))-fout(:),2)/length(xout);
@@ -50,7 +46,7 @@ end
 
 %test 2: test tensor-product output functionality.
 [xxout,yyout] = meshgrid(sort(xout,'ascend'),sort(yout,'ascend'));
-fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout,maxMem);
+fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout);
 
 %did we reshape properly?
 if all(size(fout_tensor) == size(xxout))
@@ -70,7 +66,7 @@ end
 %test 3: test that we're getting boundaries right (odd/odd symmetry)
 Nout=64;
 [xxout,yyout] = meshgrid(linspace(dx,2*pi,Nout),linspace(dy,2*pi,Nout));
-fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout,maxMem);
+fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout);
 
 %check error - should get better if we refine the grid
 err = norm(sin(xxout(:)).*sin(yyout(:))-fout_tensor(:),2)/length(xout);
@@ -92,7 +88,7 @@ end
 f=sin(x).*cos(y); %function to sample
 Nout=64;
 [xxout,yyout] = meshgrid(linspace(dx,2*pi,Nout),linspace(dy,2*pi,Nout));
-fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout,maxMem);
+fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout);
 
 %check error - should get better if we refine the grid
 err = norm(sin(xxout(:)).*cos(yyout(:))-fout_tensor(:),2)/length(xout);
@@ -114,7 +110,7 @@ end
 f=cos(x).*cos(y); %function to sample
 Nout=64;
 [xxout,yyout] = meshgrid(linspace(dx,2*pi,Nout),linspace(dy,2*pi,Nout));
-fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout,maxMem);
+fout_tensor = bandLimFourierInterp2D(x,y,f,xxout,yyout);
 
 %check error - should get better if we refine the grid
 err = norm(cos(xxout(:)).*cos(yyout(:))-fout_tensor(:),2)/length(xout);

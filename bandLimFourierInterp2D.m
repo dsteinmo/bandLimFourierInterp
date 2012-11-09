@@ -1,14 +1,10 @@
 %BANDLIMFOURIERINTERP2D 2D Band-Limited Fourier Interpolation
+%   (memory-stupid version)
 %   fout = bandLimFourierInterp2D(x,y,f,xout,yout) takes periodic signal 
 %   f sampled at equispaced grid (x,y) and interpolates to arbitrary set of
 %   points (xout,yout). [x,y] should be a tensor-product grid generated with
 %   meshgrid. [xout,yout] can either be a tensor-product grid or a list
 %   of points where xout and yout are each 1D arrays.
-%
-%   fout = bandLimFourierInterp2D(x,y,f,xout,yout,maxMem) is the same as
-%   above but with optional argument maxMem that allows the specification of 
-%   maximum amount of memory (in bytes) allowed to be allocated by temporary 
-%   3D tensor-product arrays. Default is 200 MB.
 %
 %   Uses band-limited interpolation formula in tensor product form to avoid
 %   'for' loops. cf. Trefethen, "Spectral Methods in MATLAB", p3.m.
@@ -33,19 +29,7 @@
 %   along with this program; if not, write to the Free Software
 %   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 %   02110-1301, USA
-function fout =  bandLimFourierInterp2D(x,y,f,xout,yout,maxMem)
-
-    %deal with optional input argument
-    MAXMEMDEFAULT = 209715200; %default = 200 MB
-    
-    if ~exist('maxMem','var')
-        maxMem = MAXMEMDEFAULT;
-    else
-        if isempty(maxMem)
-            maxMem = MAXMEMDEFAULT;
-        end
-        %else, input is probably acceptable
-    end
+function fout =  bandLimFourierInterp2D(x,y,f,xout,yout)
     
     %get 1D versions of x & y-grids
     x1d = x(1,:);
@@ -86,40 +70,9 @@ function fout =  bandLimFourierInterp2D(x,y,f,xout,yout,maxMem)
     %make output points into column vectors for rest of calculations
     xout=xout(:);
     yout=yout(:);
-    Nout=length(xout);
-
-    %calculate acceptable size of 3D arrays
-    sizeOf3D =maxMem/2;               %Calculation needs 2 3D arrays
-    maxEntries3D = sizeOf3D/8;        %populated by 8-byte entries.
-    %so third dimension should be at most this big:
-    zlen = floor(maxEntries3D/Nx/Ny);
-
-    if zlen == 0
-        error('Input data too big or maxMem too small. Try making maxMem larger (default is 209715200 bytes).');
-    end
-
-    %if we can fit the entire calculation in memory
-    %at the same time, then proceed as normal (as in older version)
-    if Nout < zlen
-        fout = doSincInterpFast(f,psincX,psincY,x1d,y1d,xout,yout);
-    else
-        %if we can't fit it into memory, split it up into blocks of length
-        %zlen and process them sequentially with a for-loop.
-        Nblocks = ceil(Nout/zlen);
-        fout = zeros(Nout,1);
-
-        for n=1:Nblocks
-            if n==Nblocks
-                %last block could be smaller
-                range = (zlen*(n-1)+1):Nout;
-            else
-                range = (zlen*(n-1)+1):zlen*n;
-            end
-
-            fout(range) = doSincInterpFast(f,psincX,psincY,x1d,y1d,xout(range),yout(range));
-        end
-    end
-
+    
+    fout = doSincInterpFast(f,psincX,psincY,x1d,y1d,xout,yout);
+    
     %reshape data, if we're supposed to
     if TENSOR_PROD_OUTPUT == true
         fout = reshape(fout,szout(1),szout(2));
