@@ -1,3 +1,6 @@
+bandLimFourierInterp
+====================
+
 BandLimFourierInterp is a free open-source program that can be used with either GNU Octave or MATLAB. It is licensed under version 3 of the GNU general public license.
 
 The program itself is based on the idea presented in "Spectral Methods in MATLAB" by Lloyd N. Trefethen to use shifted sinc(x) functions for 1D interpolation of functions on unbounded domains. We have extended this idea to general 1D & 2D periodic functions by choosing appropriate periodic sinc's and have tried to make the implementation as speedy and memory efficient as possible (especially in 2D). 
